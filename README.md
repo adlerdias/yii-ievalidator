@@ -15,9 +15,14 @@ Usage
   inscricaoEstadual = inscricaoEstadual value;
   estado = estado value; // Two Characters
 
- * public function rules() {
- *     return array(
- *       	array('inscricaoEstadual', 'ext.validators.IeValidator',
- *           	'with'=>'estado'),
- *   	);
- *	}
+
+class example extends CModel {
+    //[....]
+    public function rules()
+    {
+        return array(
+            //[....]
+            array('inscricaoEstadual', 'ext.validators.IeValidator', 'with'=>'estado'),
+        );
+    }
+}
