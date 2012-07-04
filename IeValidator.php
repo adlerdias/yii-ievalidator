@@ -18,7 +18,7 @@
  * public function rules() {
  *   	return array(
  *       	array('firstKey', 'ext.validators.IeValidator',
- *           	'with'=>'secondKey'),
+ *           	'estado'=>'secondKey'),
  *   	);
  *	}
  *
@@ -30,7 +30,7 @@ class IeValidator extends CValidator
 	 * The attributes boud in the estado with attribute
 	 * @var string
 	 */
-	public $with;
+	public $estado;
 
 	/**
 	 * Validates the attribute of the object.
@@ -39,7 +39,7 @@ class IeValidator extends CValidator
 	 * @param string the name of the attribute to be validated.
 	 */
 	protected function validateAttribute( $object, $attribute ){
-		if ( !$this->validaIE( $object, $attribute, $this->with ) )
+		if ( !$this->validaIE( $object, $attribute, $this->estado ) )
 			$this->addError($object, $attribute, Yii::t('yii','{attribute} não é uma Inscrição Estadual válida.'));
 	}
 	
@@ -52,10 +52,10 @@ class IeValidator extends CValidator
 	 * @param string the name of the attribute using a dummy attribute to be validated.
      * 
     */
-	private function validaIE($object, $attribute, $with)
+	private function validaIE($object, $attribute, $estado)
 	{
 		$inscricao = $object->$attribute;
-		$estado = $object->$with;
+		$estado = $object->$estado;
 		
 		if($inscricao <> "ISENTO"){
 			if (!is_numeric($inscricao) OR !is_string($inscricao)) {
