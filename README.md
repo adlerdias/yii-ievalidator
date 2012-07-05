@@ -12,17 +12,18 @@ yii-ievalidator is an extension for Yii Framework, for automate the IE validatio
 Usage
 -----
 
-  inscricaoEstadual = inscricaoEstadual value;
-  estado = estado value; // Two Characters
+  inscricaoEstadual = inscricaoEstadual value; // with or without separators
+  estado = estado value; //Two Characters lower or upper case
 
-
+```php
 class example extends CModel {
     //[....]
     public function rules()
     {
         return array(
             //[....]
-            array('inscricaoEstadual', 'ext.validators.IeValidator', 'with'=>'estado'),
+            array('inscricaoEstadual', 'ext.validators.IeValidator', 'estado'=>'estado'),
         );
     }
 }
+```
