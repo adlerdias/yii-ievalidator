@@ -11,7 +11,7 @@
 /**
  * IeValidator valida uma Inscrição estadual brasileira conforme algoritimo de verificação de cada estado.
  * @author Adler S Dias <adlersd@gmail.com>
- * @version 0.2
+ * @version 0.1
  * 
  * Usage:
  * 
@@ -47,17 +47,21 @@ class IeValidator extends CValidator
 	 * Validates the attribute of the object.
 	 * @param integer how much characters will be used
 	 * @param integer initial weight used in calculus 9-2
+	 * @param array ignore indexes
 	 * @param string Inscrição Estadual that will be used 
 	 */
-	private function sum_calc($limit, $initial_weight, $validate)
+	private function sum_calc($limit, $initial_weight, $ignore = null, $validate)
 	{
 		$value = 0;
 		$weight = $initial_weight;
 		for($i=0;$i<=$limit;$i++)
 		{
-			if ($weight == 1) $weight = 9;
-			$value += $validate[$i] * $weight;
-			$weight--;
+			if (is_array($ignore) && !in_array($i,$ignore))
+			{
+				if ($weight == 1) $weight = 9;
+				$value += $validate[$i] * $weight;
+				$weight--;
+			}
 		}
 		return $value;
 	}
@@ -73,14 +77,14 @@ class IeValidator extends CValidator
     */
 	private function validaIE($object, $attribute, $estado)
 	{
-		$inscricao = preg_replace('/[^0-9a-zA-Z]+/', '', $object->$attribute);
+		$inscricao = trim(preg_replace('/[^0-9a-zA-Z]+/', '', $object->$attribute));
 		$estado = strtoupper($object->$estado);
 		
 		if ("ISENTO" === strtoupper($inscricao)) return true;
 
 		if ($estado == "AC") {
 			if (strlen($inscricao) <> 13) return false;
-			$soma1 = self::sum_calc(10, 4, $inscricao);
+			$soma1 = self::sum_calc(10, 4, array(), $inscricao);
 
 			$resto = 11 - ($soma1 % 11);
 			if ($resto >= 10) {
@@ -89,7 +93,7 @@ class IeValidator extends CValidator
 				$digito1 = $resto;
 			}
 
-			$soma2 = self::sum_calc(11, 5, $inscricao);
+			$soma2 = self::sum_calc(11, 5, array(), $inscricao);
 
 			$resto = 11 - ($soma2 % 11);
 			if ($resto >= 10) {
@@ -105,8 +109,8 @@ class IeValidator extends CValidator
 			}
 		} elseif ($estado == "AL") {
 			if (strlen($inscricao) <> 9) return false;
-			$soma = self::sum_calc(7, 9, $inscricao);
-			
+			$soma = self::sum_calc(7, 9, array(), $inscricao);
+
 			$resto = (($soma * 10) - (floor((($soma*10)/11)) * 11));
 			if ($resto >= 10) {
 				$digito = 0;
@@ -121,7 +125,7 @@ class IeValidator extends CValidator
 		} elseif ($estado == "AP") {
 			if (strlen($inscricao) <> 9 OR substr($inscricao,0,2) != 03) return false;
 
-			$soma = self::sum_calc(7, 9, $inscricao);
+			$soma = self::sum_calc(7, 9, array(), $inscricao);
 
 			if (substr($inscricao,0,8) >= 03000001 AND substr($inscricao,0,2) <= 03017000) {
 				$soma += 5;
@@ -152,7 +156,7 @@ class IeValidator extends CValidator
 		} elseif ($estado == "AM") {
 			if (strlen($inscricao) <> 9) return false;
 
-			$soma = self::sum_calc(7, 9, $inscricao);
+			$soma = self::sum_calc(7, 9, array(), $inscricao);
 			
 			if ($soma < 11) {
 				$digito = 11 - $soma;
@@ -163,58 +167,118 @@ class IeValidator extends CValidator
 					$digito = 11 - ($soma % 11);
 				}
 			}
+
 			if ($inscricao[8] == $digito) {
 				return true;
 			} else {
 				return false;
 			}
 		} elseif ($estado == "BA") {
-			if (strlen($inscricao) <> 8) return false;
-			if (array_search(substr($inscricao,0,1),array(0,1,2,3,4,5,8))) {
-				$soma2 = self::sum_calc(5, 7, $inscricao);
+			if (strlen($inscricao) <> 8 && strlen($inscricao) <> 9) return false;
 
-				$resto = $soma2 % 10;
-				if ($resto == 0) {
-					$digito2 = 0;
+			if (strlen($inscricao) == 8)
+			{
+				if (in_array(substr($inscricao,0,1),array(0,1,2,3,4,5,8))) {
+					$soma2 = self::sum_calc(5, 7, array(), $inscricao);
+
+					$resto = $soma2 % 10;
+
+					if ($resto == 0) {
+						$digito2 = 0;
+					} else {
+						$digito2 = 10 - $resto;
+					}
+
+					$soma1 = self::sum_calc(7, 8, array(6), $inscricao); 
+
+					$digito1 = 10 - ($soma1 % 10);
+
+					if (($inscricao[6] == $digito1) && ($inscricao[7] == $digito2)) {
+						return true;
+					} else {
+						return false;
+					}
 				} else {
-					$digito2 = 10 - $resto;
+					$soma2 = self::sum_calc(5, 7, array(), $inscricao);
+
+					$resto = $soma2 % 11;
+					if ($resto < 2) {
+						$digito2 = 0;
+					} else {
+						$digito2 = 11 - $resto;
+					}
+
+					$soma1 = self::sum_calc(7, 8, array(6), $inscricao);
+	
+					$digito1 = 11 - ($soma1 % 11);
+
+					if (($inscricao[6] == $digito1) && ($inscricao[7] == $digito2)) {
+						return true;
+					} else {
+						return false;
+					}
 				}
+			}
+			else
+			{
+				if (in_array(substr($inscricao,1,2),array(0,1,2,3,4,5,8))) {
 
-				$soma1 = ($inscricao[0] * 8) + ($inscricao[1] * 7) + ($inscricao[2] * 6) + ($inscricao[3] * 5) +
-				($inscricao[4] * 4) + ($inscricao[5] * 3) + ($inscricao[7] * 2);
+					$soma2 = self::sum_calc(6, 8, array(), $inscricao);
+				
+					$resto = $soma2 % 10;
+				
+					if ($resto == 0) {
+						$digito2 = 0;
+					} else {
+						$digito2 = 10 - $resto;
+					}
 
-				$digito1 = 10 - ($soma1 % 10);
+					$soma1 = self::sum_calc(8, 9, array(7), $inscricao);
 
-				if (($inscricao[6] == $digito1) && ($inscricao[7] == $digito2)) {
-					return true;
+					$resto1 = $soma1 % 10;
+					
+					if ($resto1 == 0) {
+						$digito1 = 0;
+					} else {
+						$digito1 = 10 - $resto1;
+					}
+
+					if (($inscricao[7] == $digito1) && ($inscricao[8] == $digito2)) {
+						return true;
+					} else {
+						return false;
+					}
 				} else {
-					return false;
-				}
-			} else {
-				$soma2 = self::sum_calc(5, 7, $inscricao); 
+					$soma2 = self::sum_calc(6, 8, array(), $inscricao);
+				
+					$resto = $soma2 % 11;
+					if ($resto <= 1) {
+						$digito2 = 0;
+					} else {
+						$digito2 = 11 - $resto;
+					}
+				
+					$soma1 = self::sum_calc(8, 9, array(7), $inscricao);
 
-				$resto = $soma2 % 11;
-				if ($resto < 2) {
-					$digito2 = 0;
-				} else {
-					$digito2 = 11 - $resto;
-				}
+					$resto1 = $soma1 % 11;
+						
+					if ($resto1 == 0) {
+						$digito1 = 0;
+					} else {
+						$digito1 = 11 - $resto1;
+					}
 
-				$soma1 = ($inscricao[0] * 8) + ($inscricao[1] * 7) + ($inscricao[2] * 6) + ($inscricao[3] * 5) +
-				($inscricao[4] * 4) + ($inscricao[5] * 3) + ($inscricao[7] * 2);
-
-				$digito1 = 11 - ($soma1 % 11);
-
-				if (($inscricao[6] == $digito1) && ($inscricao[7] == $digito2)) {
-					return true;
-				} else {
-					return false;
+					if (($inscricao[7] == $digito1) && ($inscricao[8] == $digito2)) {
+						return true;
+					} else {
+						return false;
+					}
 				}
 			}
 		} elseif ($estado == "CE") {
 			if (strlen($inscricao) <> 9) return false;
 
-			$soma = self::sum_calc(7, 9, $inscricao);
+			$soma = self::sum_calc(7, 9, array(), $inscricao);
 
 			$resto = $soma % 11;
 
@@ -231,8 +295,7 @@ class IeValidator extends CValidator
 			}
 		} elseif ($estado == "DF") {
 			if (strlen($inscricao) <> 13 || substr($inscricao,0,2) != 07) return false;
-			
-			$soma1 = self::sum_calc(10, 4, $inscricao);
+			$soma1 = self::sum_calc(10, 4, array(), $inscricao);
 
 			$resto = 11 - ($soma1 % 11);
 			if ($resto >= 10) {
@@ -241,7 +304,7 @@ class IeValidator extends CValidator
 				$digito1 = $resto;
 			}
 
-			$soma2 = self::sum_calc(11, 5, $inscricao);
+			$soma2 = self::sum_calc(11, 5, array(), $inscricao);
 
 			$resto = 11 - ($soma2 % 11);
 			if ($resto >= 10) {
@@ -256,10 +319,9 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "ES") {
-			// testar IE
 			if (strlen($inscricao) <> 9) return false;
 
-			$soma = self::sum_calc(7, 9, $inscricao);
+			$soma = self::sum_calc(7, 9, array(), $inscricao);
 
 			$resto = $soma % 11;
 
@@ -276,7 +338,7 @@ class IeValidator extends CValidator
 			}
 		} elseif ($estado == "GO") {
 			if (strlen($inscricao) <> 9) return false;
-			$soma = self::sum_calc(7, 9, $inscricao);
+			$soma = self::sum_calc(7, 9, array(), $inscricao);
 
 			$resto = $soma % 11;
 
@@ -302,7 +364,7 @@ class IeValidator extends CValidator
 			}
 		} elseif ($estado == "MA") {
 			if (strlen($inscricao) <> 9 || (substr($inscricao,0,2) != 12)) return false;
-			$soma = self::sum_calc(7, 9, $inscricao);
+			$soma = self::sum_calc(7, 9, array(), $inscricao);
 
 			$resto = $soma % 11;
 
@@ -319,11 +381,11 @@ class IeValidator extends CValidator
 			}
 		} elseif ($estado == "MT") {
 			if (strlen($inscricao) <> 11) return false;
-			$soma = self::sum_calc(9, 3, $inscricao);
+			$soma = self::sum_calc(9, 3, array(), $inscricao);
 
 			$resto = $soma % 11;
 
-			if ($resto < 2) {
+			if ($resto <= 1) {
 				$digito = 0;
 			} else {
 				$digito = 11 - $resto;
@@ -337,13 +399,14 @@ class IeValidator extends CValidator
 		} elseif ($estado == "MS") {
 			if (strlen($inscricao) <> 9 || substr($inscricao,0,2) != 28) return false;
 
-			$soma = self::sum_calc(7, 9, $inscricao);
+			$soma = self::sum_calc(7, 9, array(), $inscricao);
 
 			$resto = $soma % 11;
 
 			if ($resto != 0) {
 				$digito = 11 - $resto;
-				if ($digito > 9) {
+				if ($digito > 9)
+				{
 					$digito = 0;
 				}
 			} else {
@@ -395,11 +458,11 @@ class IeValidator extends CValidator
 			}
 		} elseif ($estado == "PA") {
 			if (strlen($inscricao) <> 9 || substr($inscricao,0,2) != 15) return false;
-			$soma = self::sum_calc(7, 9, $inscricao);
+			$soma = self::sum_calc(7, 9, array(), $inscricao);
 
 			$resto = $soma % 11;
 
-			if ($resto < 2) {
+			if ($resto <= 1) {
 				$digito = 0;
 			} else {
 				$digito = 11 - $resto;
@@ -412,7 +475,7 @@ class IeValidator extends CValidator
 			}
 		} elseif ($estado == "PB") {
 			if (strlen($inscricao) <> 9) return false;
-			$soma = self::sum_calc(7, 9, $inscricao);
+			$soma = self::sum_calc(7, 9, array(), $inscricao);
 
 			$digito = 11 - ($soma % 11);
 
@@ -427,6 +490,7 @@ class IeValidator extends CValidator
 			}
 		} elseif ($estado == "PR") {
 			if (strlen($inscricao) <> 10) return false;
+
 			$soma1 = ($inscricao[0] * 3) + ($inscricao[1] * 2) + ($inscricao[2] * 7) + ($inscricao[3] * 6) +
 			($inscricao[4] * 5) + ($inscricao[5] * 4) + ($inscricao[6] * 3) + ($inscricao[7] * 2);
 
@@ -454,9 +518,10 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "PE") {
-			if (strlen($inscricao) <> 9 && strlen($inscricao) <> 14) return false;
+			//if (strlen($inscricao) <> 9 && strlen($inscricao) <> 14) return false;
+
 			if (strlen($inscricao) == 9) {
-				$soma1 = self::sum_calc(6, 8, $inscricao);
+				$soma1 = self::sum_calc(6, 8, array(), $inscricao);
 
 				$resto = $soma1 % 11;
 
@@ -466,7 +531,7 @@ class IeValidator extends CValidator
 					$digito1 = 11 - $resto;
 				}
 
-				$soma2 = self::sum_calc(7, 9, $inscricao);
+				$soma2 = self::sum_calc(7, 9, array(), $inscricao);
 
 				$resto = $soma2 % 11;
 
@@ -482,7 +547,7 @@ class IeValidator extends CValidator
 					return false;
 				}
 			} else {
-				$soma = self::sum_calc(12, 5, $inscricao);  
+				$soma = self::sum_calc(12, 5, array(), 	$inscricao);  
 
 				$digito = 11 - ($soma % 11);
 
@@ -498,7 +563,7 @@ class IeValidator extends CValidator
 			}
 		} elseif ($estado == "PI") {
 			if (strlen($inscricao) <> 9) return false;
-			$soma = self::sum_calc(7, 9, $inscricao);
+			$soma = self::sum_calc(7, 9, array(), $inscricao);
 
 			$digito = 11 - ($soma % 11);
 
@@ -531,8 +596,9 @@ class IeValidator extends CValidator
 			}
 		} elseif ($estado == "RN") {
 			if (strlen($inscricao) <> 9 && strlen($inscricao) <> 10) return false;
+
 			if (strlen($inscricao) == 9) {
-				$soma = self::sum_calc(7, 9, $inscricao);
+				$soma = self::sum_calc(7, 9, array(), $inscricao);
 
 				$resto = ($soma * 10) % 11;
 
@@ -548,7 +614,7 @@ class IeValidator extends CValidator
 					return false;
 				}
 			} else {
-				$soma = self::sum_calc(8, 10, $inscricao);
+				$soma = self::sum_calc(8, 10, array(), $inscricao);
 
 				$resto = ($soma * 10) % 11;
 
@@ -566,7 +632,8 @@ class IeValidator extends CValidator
 			}
 		} elseif ($estado == "RS") {
 			if (strlen($inscricao) <> 10) return false;
-			$soma = self::sum_calc(8, 2, $inscricao);
+
+			$soma = self::sum_calc(8, 2, array(), $inscricao);
 
 			$digito = 11 - ($soma % 11);
 
@@ -581,6 +648,7 @@ class IeValidator extends CValidator
 			}
 		} elseif ($estado == "RO") {
 			if (strlen($inscricao) <> 9 && strlen($inscricao) <> 14) return false;
+
 			if (strlen($inscricao) == 9) {
 				$soma = ($inscricao[3] * 6) + ($inscricao[4] * 5) + ($inscricao[5] * 4) + ($inscricao[6] * 3) +
 				($inscricao[7] * 2);
@@ -597,7 +665,7 @@ class IeValidator extends CValidator
 					return false;
 				}
 			} else {
-				$soma = self::sum_calc(12, 6, $inscricao);
+				$soma = self::sum_calc(12, 6, array(), $inscricao);
 
 				$digito = 11 - ($soma % 11);
 
@@ -627,7 +695,7 @@ class IeValidator extends CValidator
 			}
 		} elseif ($estado == "SC") {
 			if (strlen($inscricao) <> 9) return false;
-			$soma = self::sum_calc(7, 9, $inscricao);
+			$soma = self::sum_calc(7, 9, array(), $inscricao);
 
 			$resto = $soma % 11;
 
@@ -644,7 +712,7 @@ class IeValidator extends CValidator
 			}
 		} elseif ($estado == "SE") {
 			if (strlen($inscricao) <> 9) return false;
-			$soma = self::sum_calc(7, 9, $inscricao);
+			$soma = self::sum_calc(7, 9, array(), $inscricao);
 
 			$digito = 11 - ($soma % 11);
 
@@ -693,8 +761,8 @@ class IeValidator extends CValidator
 			}
 		} elseif ($estado == "TO") {
 			if (strlen($inscricao) <> 11 || (substr($inscricao,2,2) != 01 && substr($inscricao,2,2) != 02 && substr($inscricao,2,2) != 03 && substr($inscricao,2,2) !=99)) return false;
-			$soma = ($inscricao[0] * 9) + ($inscricao[1] * 8) + ($inscricao[4] * 7) + ($inscricao[5] * 6) +
-			($inscricao[6] * 5) + ($inscricao[7] * 4) + ($inscricao[8] * 3) + ($inscricao[9] * 2);
+
+			$soma = self::sum_calc(9, 9, array(2,3), $inscricao);
 
 			$resto = $soma % 11;
 
