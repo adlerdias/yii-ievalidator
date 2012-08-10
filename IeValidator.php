@@ -760,7 +760,7 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "TO") {
-			if (strlen($inscricao) == 11 && ((substr($inscricao,2,2) == 01 && substr($inscricao,2,2) == 02 && substr($inscricao,2,2) == 03 && substr($inscricao,2,2) == 99))) return false;
+			if (strlen($inscricao) == 11 && ((substr($inscricao,2,2) == 01 && substr($inscricao,2,2) == 02 && substr($inscricao,2,2) == 03 && substr($inscricao,2,2) == 99)) || strlen($inscricao) != 9 ) return false;
 
 			if (strlen($inscricao) == 11)
 			{
