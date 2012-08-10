@@ -11,7 +11,7 @@
 /**
  * IeValidator valida uma Inscrição estadual brasileira conforme algoritimo de verificação de cada estado.
  * @author Adler S Dias <adlersd@gmail.com>
- * @version 0.2
+ * @version 0.1
  * 
  * Usage:
  * 
@@ -109,6 +109,32 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "AL") {
+			// CNPJ: 12.445.714/0001- 92
+			// Inscrição Estadual: 24.067.173-2
+			// CNPJ: 35.250.323/0001-18
+			//Inscrição Estadual: 24.076.739-2
+			//CNPJ: 05.204.509/0001-70
+			//Inscrição Estadual: 24.102.358-0
+			//CNPJ:35.567.684/0001-92
+			//Inscrição Estadual: 24.079.990-9
+			//CNPJ: 01.334.368/0001-59
+			//Inscrição Estadual: 24.089.451-0
+			//CNPJ: 40.917.346/0001-73
+			//Inscrição Estadual: 24.080.152-0
+			//CNPJ: 02.143.275/0001-00
+			//Inscrição Estadual: 24.092.497-5
+			//CNPJ: 02.527.858/0001-34
+			//Inscrição Estadual: 24.095.056-9
+			//CNPJ: 35.398.478/0002-87
+			//Inscrição Estadual: 24.104.510-0
+			//CNPJ: 08.840.340/0001-32
+			//Inscrição Estadual: 24.069.666-2
+			//CNPJ: 11.923.281/0001-70
+			//Inscrição Estadual: 24.088.932-0
+			//CNPJ: 24.239.931/0001-05
+			//Inscrição Estadual: 24.071.615-9
+			//CNPJ: 03.360.646/0001-78
+			//Inscrição Estadual: 24.097.262-7
 			if (strlen($inscricao) <> 9) return false;
 			$soma = self::sum_calc(7, 9, array(), $inscricao);
 
@@ -124,6 +150,7 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "AP") {
+			// 030123459
 			if (strlen($inscricao) <> 9 OR substr($inscricao,0,2) != 03) return false;
 
 			$soma = self::sum_calc(7, 9, array(), $inscricao);
@@ -155,6 +182,8 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "AM") {
+			//CNPJ: 04.326.492/0023-76
+			//Inscrição Estadual: 04.213.093-0
 			if (strlen($inscricao) <> 9) return false;
 
 			$soma = self::sum_calc(7, 9, array(), $inscricao);
@@ -175,6 +204,19 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "BA") {
+			//CNPJ: 84.046.101/0381-66 
+			//Inscrição Estadual: 36723199
+			//CNPJ: 84.046.101/0028-39
+			//Inscrição Estadual: 28835923
+			//CNPJ: 84.046.101/0429-45
+			//Inscrição Estadual: 36.235.722-NO
+			//CNPJ: 84.046.101/0028-39
+			//Inscrição Estadual: 28835923
+			//CNPJ: 84.046.101/0028-39
+			//Inscrição Estadual: 28835923
+			//CNPJ: 84.046.101/0028-39
+			//Inscrição Estadual: 28835923
+			
 			if (strlen($inscricao) <> 8 && strlen($inscricao) <> 9) return false;
 
 			if (strlen($inscricao) == 8)
@@ -383,8 +425,8 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "MT") {
-			// 00130000019
-			if (strlen($inscricao) <> 11) return false;
+			if (strlen($inscricao) <> 11)
+				$inscricao = str_pad($inscricao, 11, "0", STR_PAD_LEFT);
 			$soma = self::sum_calc(9, 3, array(), $inscricao);
 
 			$resto = $soma % 11;
@@ -401,14 +443,13 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "MS") {
-			// 282182918
-			if (strlen($inscricao) <> 9 || substr($inscricao,0,2) != 28) return false;
+			if (strlen($inscricao) <> 10 || substr($inscricao,0,2) != 28) return false;
 
 			$soma = self::sum_calc(7, 9, array(), $inscricao);
 
 			$resto = $soma % 11;
 
-			if ($resto != 0) {
+			if ($resto > 0) {
 				$digito = 11 - $resto;
 				if ($digito > 9)
 				{
@@ -464,6 +505,8 @@ class IeValidator extends CValidator
 		} elseif ($estado == "PA") {
 			if (strlen($inscricao) <> 9 || substr($inscricao,0,2) != 15) return false;
 			$soma = self::sum_calc(7, 9, array(), $inscricao);
+			//($inscricao[0] * 9) + ($inscricao[1] * 8) + ($inscricao[2] * 7) + ($inscricao[3] * 6) +
+			//($inscricao[4] * 5) + ($inscricao[5] * 4) + ($inscricao[6] * 3) + ($inscricao[7] * 2);
 
 			$resto = $soma % 11;
 
@@ -481,6 +524,8 @@ class IeValidator extends CValidator
 		} elseif ($estado == "PB") {
 			if (strlen($inscricao) <> 9) return false;
 			$soma = self::sum_calc(7, 9, array(), $inscricao);
+			//($inscricao[0] * 9) + ($inscricao[1] * 8) + ($inscricao[2] * 7) + ($inscricao[3] * 6) +
+			//($inscricao[4] * 5) + ($inscricao[5] * 4) + ($inscricao[6] * 3) + ($inscricao[7] * 2);
 
 			$digito = 11 - ($soma % 11);
 
@@ -523,9 +568,12 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "PE") {
+			//if (strlen($inscricao) <> 9 && strlen($inscricao) <> 14) return false;
 
 			if (strlen($inscricao) == 9) {
 				$soma1 = self::sum_calc(6, 8, array(), $inscricao);
+				//($inscricao[0] * 8) + ($inscricao[1] * 7) + ($inscricao[2] * 6) + ($inscricao[3] * 5) +
+				//($inscricao[4] * 4) + ($inscricao[5] * 3) + ($inscricao[6] * 2);
 
 				$resto = $soma1 % 11;
 
@@ -536,6 +584,8 @@ class IeValidator extends CValidator
 				}
 
 				$soma2 = self::sum_calc(7, 9, array(), $inscricao);
+				//($inscricao[0] * 9) + ($inscricao[1] * 8) + ($inscricao[2] * 7) + ($inscricao[3] * 6) +
+				//($inscricao[4] * 5) + ($inscricao[5] * 4) + ($inscricao[6] * 3) + ($inscricao[7] * 2);
 
 				$resto = $soma2 % 11;
 
