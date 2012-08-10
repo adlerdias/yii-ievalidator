@@ -22,7 +22,8 @@
  *   	);
  *	}
  *
- *	Thanks to rawtaz and tom[] from #yii on freenode
+ *	Thanks to rawtaz and tom[] from #yii on freenode (point to documentation)
+ *  Thanks to Ivan Wilhelm <ivan.whm@me.com> (Tocantins validation bug/point to documentation)
  */
 class IeValidator extends CValidator
 {
@@ -47,7 +48,6 @@ class IeValidator extends CValidator
 	 * Validates the attribute of the object.
 	 * @param integer how much characters will be used
 	 * @param integer initial weight used in calculus 9-2
-	 * @param array ignore indexes
 	 * @param string Inscrição Estadual that will be used 
 	 */
 	private function sum_calc($limit, $initial_weight, $ignore = null, $validate)
@@ -84,6 +84,7 @@ class IeValidator extends CValidator
 
 		if ($estado == "AC") {
 			if (strlen($inscricao) <> 13) return false;
+			// 01.004.823/001-12
 			$soma1 = self::sum_calc(10, 4, array(), $inscricao);
 
 			$resto = 11 - ($soma1 % 11);
@@ -337,6 +338,7 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "GO") {
+			// 109876547
 			if (strlen($inscricao) <> 9) return false;
 			$soma = self::sum_calc(7, 9, array(), $inscricao);
 
@@ -363,6 +365,7 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "MA") {
+			// 120000385
 			if (strlen($inscricao) <> 9 || (substr($inscricao,0,2) != 12)) return false;
 			$soma = self::sum_calc(7, 9, array(), $inscricao);
 
@@ -380,6 +383,7 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "MT") {
+			// 00130000019
 			if (strlen($inscricao) <> 11) return false;
 			$soma = self::sum_calc(9, 3, array(), $inscricao);
 
@@ -397,6 +401,7 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "MS") {
+			// 282182918
 			if (strlen($inscricao) <> 9 || substr($inscricao,0,2) != 28) return false;
 
 			$soma = self::sum_calc(7, 9, array(), $inscricao);
@@ -518,7 +523,6 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "PE") {
-			//if (strlen($inscricao) <> 9 && strlen($inscricao) <> 14) return false;
 
 			if (strlen($inscricao) == 9) {
 				$soma1 = self::sum_calc(6, 8, array(), $inscricao);
@@ -760,22 +764,43 @@ class IeValidator extends CValidator
 				return false;
 			}
 		} elseif ($estado == "TO") {
-			if (strlen($inscricao) <> 11 || (substr($inscricao,2,2) != 01 && substr($inscricao,2,2) != 02 && substr($inscricao,2,2) != 03 && substr($inscricao,2,2) !=99)) return false;
+			if (strlen($inscricao) == 11 && ((substr($inscricao,2,2) == 01 && substr($inscricao,2,2) == 02 && substr($inscricao,2,2) == 03 && substr($inscricao,2,2) == 99))) return false;
 
-			$soma = self::sum_calc(9, 9, array(2,3), $inscricao);
+			if (strlen($inscricao) == 11)
+			{
+				$soma = self::sum_calc(9, 9, array(2,3), $inscricao);
 
-			$resto = $soma % 11;
+				$resto = $soma % 11;
 
-			if ($resto < 2) {
-				$digito = 0;
-			} else {
-				$digito = 11 - $resto;
+				if ($resto < 2) {
+					$digito = 0;
+				} else {
+					$digito = 11 - $resto;
+				}
+
+				if ($inscricao[10] == $digito) {
+					return true;
+				} else {
+					return false;
+				}
 			}
+			else
+			{	
+				$soma = self::sum_calc(7, 9, array(), $inscricao);
 
-			if ($inscricao[10] == $digito) {
-				return true;
-			} else {
-				return false;
+				$resto = $soma % 11;
+
+				if ($resto < 2) {
+					$digito = 0;
+				} else {
+					$digito = 11 - $resto;
+				}
+
+				if ($inscricao[8] == $digito) {
+					return true;
+				} else {
+					return false;
+				}
 			}
 		}
 	}
