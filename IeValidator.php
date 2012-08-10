@@ -11,7 +11,7 @@
 /**
  * IeValidator valida uma Inscrição estadual brasileira conforme algoritimo de verificação de cada estado.
  * @author Adler S Dias <adlersd@gmail.com>
- * @version 0.1
+ * @version 0.2
  * 
  * Usage:
  * 
