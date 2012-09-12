@@ -11,7 +11,7 @@
 /**
  * IeValidator valida uma Inscrição estadual brasileira conforme algoritimo de verificação de cada estado.
  * @author Adler S Dias <adlersd@gmail.com>
- * @version 0.1
+ * @version 0.1.1
  * 
  * Usage:
  * 
@@ -161,7 +161,7 @@ class IeValidator extends CValidator
 			if ($soma < 11) {
 				$digito = 11 - $soma;
 			} else {
-				if (($soma % 11) >= 1) {
+				if (($soma % 11) <= 1) {
 					$digito = 0;
 				} else {
 					$digito = 11 - ($soma % 11);
