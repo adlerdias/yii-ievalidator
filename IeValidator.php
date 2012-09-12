@@ -24,6 +24,7 @@
  *
  *	Thanks to rawtaz and tom[] from #yii on freenode (point to documentation)
  *  Thanks to Ivan Wilhelm <ivan.whm@me.com> (Tocantins validation bug/point to documentation)
+  *  Thanks to Ivan Wilhelm <ivan.whm@me.com> (Amazonas validation bug/point to documentation)
  */
 class IeValidator extends CValidator
 {
