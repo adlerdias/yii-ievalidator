@@ -24,7 +24,8 @@
  *
  *	Thanks to rawtaz and tom[] from #yii on freenode (point to documentation)
  *  Thanks to Ivan Wilhelm <ivan.whm@me.com> (Tocantins validation bug/point to documentation)
-  *  Thanks to Ivan Wilhelm <ivan.whm@me.com> (Amazonas validation bug/point to documentation)
+ *  Thanks to Ivan Wilhelm <ivan.whm@me.com> (Amazonas validation bug/point to documentation)
+ *  Thanks to Ivan Wilhelm <ivan.whm@me.com> (Minas Gerais validation bug)
  */
 class IeValidator extends CValidator
 {
@@ -222,9 +223,10 @@ class IeValidator extends CValidator
 			}
 			else
 			{
+				//026810300
 				if (in_array(substr($inscricao,1,2),array(0,1,2,3,4,5,8))) {
 
-					$soma2 = self::sum_calc(6, 8, array(), $inscricao);
+					$soma2 = self::sum_calc(7, 8, array(), $inscricao);
 				
 					$resto = $soma2 % 10;
 				
@@ -234,7 +236,12 @@ class IeValidator extends CValidator
 						$digito2 = 10 - $resto;
 					}
 
-					$soma1 = self::sum_calc(8, 9, array(7), $inscricao);
+					if ($digito2 === 0)
+					{
+						if (($inscricao[7] == $digito1) && ($inscricao[8] == $digito2)) return true;
+					}
+
+					$soma1 = self::sum_calc(8, 9, array(), $inscricao);
 
 					$resto1 = $soma1 % 10;
 					
@@ -443,9 +450,12 @@ class IeValidator extends CValidator
 
 			$digito1 = ($dezena_superior - $soma);
 
-			$soma2 = ($inscricao[0] * 3) + ($inscricao[1] * 2) + ($inscricao[2] * 11) + ($inscricao[3] * 10) +
-			($inscricao[4] * 9) + ($inscricao[5] * 8) + ($inscricao[6] * 7) + ($inscricao[7] * 6) +
-			($inscricao[8] * 5) + ($inscricao[9] * 4) + ($inscricao[10] * 3) + ($inscricao[11] * 2);
+			if ($digito1 === 10)
+			{
+				$digito1 = 0;
+			}
+
+			$soma2 = self::sum_calc(11, 3, array(), $inscricao);
 
 			$resto = $soma2 % 11;
 			if ($resto <= 1) {
