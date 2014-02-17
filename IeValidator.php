@@ -178,7 +178,8 @@ class IeValidator extends CValidator
         } elseif ($estado == "BA") {
             if (strlen($inscricao) <> 8 && strlen($inscricao) <> 9) return false;
 
-            if (strlen($inscricao) == 8) {
+            if (strlen($inscricao) == 8)
+            {
                 if (in_array(substr($inscricao,0,1),array(0,1,2,3,4,5,8))) {
                     $soma2 = self::sum_calc(5, 7, 9, array(), $inscricao);
 
@@ -219,7 +220,9 @@ class IeValidator extends CValidator
                         return false;
                     }
                 }
-            } else {
+            }
+            else
+            {
                 //026810300
                 if (in_array(substr($inscricao,1,2),array(0,1,2,3,4,5,8))) {
 
@@ -233,7 +236,8 @@ class IeValidator extends CValidator
                         $digito2 = 10 - $resto;
                     }
 
-                    if ($digito2 === 0) {
+                    if ($digito2 === 0)
+                    {
                         if (($inscricao[7] == $digito1) && ($inscricao[8] == $digito2)) return true;
                     }
 
@@ -262,7 +266,7 @@ class IeValidator extends CValidator
                         $digito2 = 11 - $resto;
                     }
 
-                    $soma1 = self::sum_calc(8, 9, array(7), $inscricao);
+                    $soma1 = self::sum_calc(8, 9, 9, array(7), $inscricao);
 
                     $resto1 = $soma1 % 11;
 
@@ -411,7 +415,8 @@ class IeValidator extends CValidator
 
             if ($resto > 0) {
                 $digito = 11 - $resto;
-                if ($digito > 9) {
+                if ($digito > 9)
+                {
                     $digito = 0;
                 }
             } else {
@@ -428,7 +433,7 @@ class IeValidator extends CValidator
             $mg = substr($inscricao,0,3) . "0" . substr($inscricao,3,10);
             $soma = 0;
             for ($i = 0; $i < 12; $i++) {
-                if ($i%2==0) {
+                if($i%2==0) {
                     $num = ($mg[$i] * 1);
                     $soma += $num;
                 } else {
@@ -767,7 +772,8 @@ class IeValidator extends CValidator
         } elseif ($estado == "TO") {
             if (strlen($inscricao) == 11 && ((substr($inscricao,2,2) == 01 && substr($inscricao,2,2) == 02 && substr($inscricao,2,2) == 03 && substr($inscricao,2,2) == 99)) || strlen($inscricao) != 9 ) return false;
 
-            if (strlen($inscricao) == 11) {
+            if (strlen($inscricao) == 11)
+            {
                 $soma = self::sum_calc(9, 9, array(2,3), $inscricao);
 
                 $resto = $soma % 11;
@@ -783,7 +789,9 @@ class IeValidator extends CValidator
                 } else {
                     return false;
                 }
-            } else {   
+            }
+            else
+            {   
                 $soma = self::sum_calc(7, 9, 9, array(), $inscricao);
 
                 $resto = $soma % 11;
