@@ -407,27 +407,28 @@ class IeValidator extends CValidator
                 return false;
             }
         } elseif ($estado == "MS") {
-            if (strlen($inscricao) <> 10 || substr($inscricao,0,2) != 28) return false;
+            if (strlen($inscricao) <> 9 || substr($inscricao,0,2) != 28) return false;
 
             $soma = self::sum_calc(7, 9, 9, array(), $inscricao);
 
             $resto = $soma % 11;
 
-            if ($resto > 0) {
-                $digito = 11 - $resto;
-                if ($digito > 9)
-                {
-                    $digito = 0;
-                }
-            } else {
+            if ($resto == 0) {
                 $digito = 0;
+            } else {
+                $t = 11 - $resto;
+
+                if ($t>9) {
+                    $digito = 0;
+                } else {
+                    $digito = $t;
+                }
             }
 
-            if ($inscricao[8] == $digito) {
+            if ($inscricao[strlen($inscricao)-1] == $digito) {
                 return true;
-            } else {
-                return false;
             }
+            return false;
         } elseif ($estado == "MG") {
             if (strlen($inscricao) <> 13) return false;
             $mg = substr($inscricao,0,3) . "0" . substr($inscricao,3,10);
