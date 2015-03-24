@@ -775,7 +775,7 @@ class IeValidator extends CValidator
 
             if (strlen($inscricao) == 11)
             {
-                $soma = self::sum_calc(9, 9, array(2,3), $inscricao);
+                $soma = self::sum_calc(9, 9, 9, array(2,3), $inscricao);
 
                 $resto = $soma % 11;
 
