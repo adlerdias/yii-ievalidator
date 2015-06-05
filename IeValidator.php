@@ -771,11 +771,11 @@ class IeValidator extends CValidator
                 return false;
             }
         } elseif ($estado == "TO") {
-            if (strlen($inscricao) == 11 && ((substr($inscricao,2,2) == 01 && substr($inscricao,2,2) == 02 && substr($inscricao,2,2) == 03 && substr($inscricao,2,2) == 99)) || strlen($inscricao) != 9 ) return false;
+            if ((strlen($inscricao) == 11 && !((substr($inscricao,2,2) == 01 || substr($inscricao,2,2) == 02 || substr($inscricao,2,2) == 03 || substr($inscricao,2,2) == 99))) || (strlen($inscricao) != 9 && strlen($inscricao) != 11)) return false;
 
             if (strlen($inscricao) == 11)
             {
-                $soma = self::sum_calc(9, 9, array(2,3), $inscricao);
+                $soma = self::sum_calc(9, 9, 9, array(2,3), $inscricao);
 
                 $resto = $soma % 11;
 
